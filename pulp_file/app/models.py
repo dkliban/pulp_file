@@ -7,7 +7,7 @@ from urllib.parse import urlparse, urlunparse
 
 from django.db import models
 
-from pulpcore.plugin.models import Artifact, Content, Importer, Publisher
+from pulpcore.plugin.models import Artifact, DeferredArtifact, Content, ContentArtifact, Importer, Publisher
 from pulpcore.plugin.changeset import (
     BatchIterator, ChangeSet, SizedIterable, RemoteContent, RemoteArtifact,
     ChangeReport, ChangeFailed)
@@ -178,9 +178,11 @@ class FileImporter(Importer):
             url = urlunparse(parsed_url._replace(path=path))
             content = FileContent(path=entry.path, digest=entry.digest)
             remote_content = RemoteContent(content)
-            artifact = Artifact(relative_path=entry.path, sha256=entry.digest)
-            download = self.get_download(url, entry.path, artifact)
-            remote_artifact = RemoteArtifact(artifact, download)
+            content_artifact = ContentArtifact(content=content, relative_path=entry.path)
+            deferred_artifact = DeferredArtifact(url=url, importer=self, content_artifact=content_artifact,
+                                             sha256=entry.digest)
+            download = self.get_download(url, entry.path, deferred_artifact)
+            remote_artifact = RemoteArtifact(deferred_artifact, content_artifact, download)
             remote_content.artifacts.add(remote_artifact)
             yield remote_content
 
@@ -232,6 +234,7 @@ class FileImporter(Importer):
             len(delta.removals))
         changeset = ChangeSet(self, additions=additions, removals=removals)
         changeset.deferred = self._is_deferred()
+
         return changeset
 
 
