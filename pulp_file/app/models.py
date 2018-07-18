@@ -21,6 +21,7 @@ class FileContent(Content):
 
     """
     TYPE = 'file'
+    RESOURCE_NAME = 'file_content'
 
     relative_path = models.TextField(blank=False, null=False)
     digest = models.TextField(blank=False, null=False)
@@ -49,6 +50,8 @@ class FileRemote(Remote):
     Remote for "file" content.
     """
     TYPE = 'file'
+    RESOURCE_NAME = 'file_remote'
+
 
 
 class FilePublisher(Publisher):
@@ -56,3 +59,4 @@ class FilePublisher(Publisher):
     Publisher for "file" content.
     """
     TYPE = 'file'
+    RESOURCE_NAME = 'file_publisher'
