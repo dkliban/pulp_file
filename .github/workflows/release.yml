@@ -63,6 +63,11 @@ jobs:
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: false
+
       - name: Script
         run: .github/workflows/scripts/script.sh
         shell: bash
